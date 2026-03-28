@@ -6,6 +6,7 @@
 #include "types.h"
 #include "environment.h"
 #include <vector>
+#include "world_config.h"
 
 // desenha a animação inicial de crescimento da árvore
 inline void DrawIntro(float introTimer, float introDuration, float centerX, float groundLevel, const std::vector<Node>& nodes){
@@ -13,7 +14,7 @@ inline void DrawIntro(float introTimer, float introDuration, float centerX, floa
     float introProgress = fminf(introTimer / introDuration, 1.0f);
 
     // fundo (solo)
-    DrawRectangle(centerX - 1000, (int)groundLevel, 2000, 1000, {15, 15, 15, 255});
+    DrawRectangle(centerX - MAP_LIMIT, (int)groundLevel, MAP_LIMIT * 2, MAP_LIMIT, {15, 15, 15, 255});
     
     // tronco inicial
     DrawCircleV(nodes[0].position, 8.0f, DARKBROWN);

@@ -4,6 +4,7 @@
 #include "raylib.h"
 #include <vector>
 #include "raymath.h"
+#include "world_config.h"
 
 // segmento individual do corpo do verme
 struct WormSegment {
@@ -34,9 +35,9 @@ inline int gWormIdCounter = 0; // Contador para gerar IDs únicos
 
 // atualiza a posição dos vermes e seus rastros
 inline void UpdateWorms(float groundLevel, float dt){
-    float leftWall = GetScreenWidth()/2.0f - 1000.0f;
-    float rightWall = GetScreenWidth()/2.0f + 1000.0f;
-    float bottomWall = groundLevel + 1000.0f;
+    float leftWall = GetScreenWidth()/2.0f - MAP_LIMIT;
+    float rightWall = GetScreenWidth()/2.0f + MAP_LIMIT;
+    float bottomWall = groundLevel + MAP_LIMIT;
 
     // spawn de novos vermes aleatoriamente
     if (gWorms.size() < 3 && GetRandomValue(0, 100) < 2){

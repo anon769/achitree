@@ -5,6 +5,7 @@
 #include "tree_utils.h"
 #include "environment.h"
 #include "worm_manager.h"
+#include "world_config.h"
 
 // desenha o ecossistema: chão, poeira, chuva, galhos, conexões, folhas e unidades
 inline void DrawEcosystem(const std::vector<Unit>& units, const std::vector<Node>& nodes, const std::vector<Connection>& connections, const TreeResources& res, float groundLevel, int sw, int sh, Camera2D camera, bool paused){
@@ -17,20 +18,20 @@ inline void DrawEcosystem(const std::vector<Unit>& units, const std::vector<Node
     if (!paused) dustFade = Lerp(dustFade, targetFade, GetFrameTime() * 2.0f);
 
     // desenha o chão
-    DrawRectangle(centerX - 1000, (int)groundLevel, 2000, 1000, {15, 15, 15, 255});
+    DrawRectangle(centerX - MAP_LIMIT, (int)groundLevel, MAP_LIMIT*2, MAP_LIMIT, {15, 15, 15, 255});
     DrawWormTrails(); 
     DrawWorms();
 
     // contorno da área
-    DrawRectangleLinesEx({ centerX - 1000, groundLevel - 1000, 2000, 2000 }, 5.0f, RED);
+    DrawRectangleLinesEx({ centerX - MAP_LIMIT, groundLevel - MAP_LIMIT, MAP_LIMIT*2, MAP_LIMIT*2 }, 5.0f, RED);
 
     // desenha poeira se houver vento
     if (dustFade > 0.001f){
         for (int i = 0; i < 80; i++){
-            float speed = 2000.0f * gWeather.windStrength;
+            float speed = MAP_LIMIT*2 * gWeather.windStrength;
             float time = (paused ? 1.0f : (float)GetTime() * 2.0f) + (i * 0.5f);
-            float offset = fmodf(i * 157.0f + (paused ? 0 : (float)GetTime() * speed), 2000.0f);
-            float px = (centerX - 1000) + offset;
+            float offset = fmodf(i * 157.0f + (paused ? 0 : (float)GetTime() * speed), MAP_LIMIT*2);
+            float px = (centerX - MAP_LIMIT) + offset;
             float jumpHeight = 15.0f + (i % 20) * 5.0f;
             float arc = fabsf(sinf(time)) * jumpHeight;
             float py = groundLevel - 2 - arc; 
@@ -48,8 +49,8 @@ inline void DrawEcosystem(const std::vector<Unit>& units, const std::vector<Node
     if (res.isRaining){
         float rainAngle = gWeather.windStrength * 10.0f;
         for (int i = 0; i < 100; i++){
-            int rx = GetRandomValue(centerX - 1000, centerX + 1000);
-            int ry = GetRandomValue(groundLevel - 1000, groundLevel);
+            int rx = GetRandomValue(centerX - MAP_LIMIT, centerX + MAP_LIMIT);
+            int ry = GetRandomValue(groundLevel - MAP_LIMIT, groundLevel);
             DrawLine(rx, ry, rx - rainAngle, ry + 10, {100, 150, 255, 150});
         }
     }

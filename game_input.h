@@ -9,6 +9,7 @@
 #include "game_init.h"
 #include <vector>
 #include <map>
+#include "world_config.h"
 
 // ponteiro global para acessar unidades (evita passar pra todo lado)
 inline std::vector<Unit>* gUnitsPtr = nullptr;
@@ -37,8 +38,8 @@ inline void HandleCamera(Camera2D& camera, float centerX, float groundLevel){
     }
 
     // limita a câmera dentro da área do jogo
-    camera.target.x = Clamp(camera.target.x, centerX - 1000.0f, centerX + 1000.0f);
-    camera.target.y = Clamp(camera.target.y, groundLevel - 1000.0f, groundLevel + 1000.0f);
+    camera.target.x = Clamp(camera.target.x, centerX - MAP_LIMIT, centerX + MAP_LIMIT);
+    camera.target.y = Clamp(camera.target.y, groundLevel - MAP_LIMIT, groundLevel + MAP_LIMIT);
 }
 
 // lida com construção da árvore e reset do jogo
@@ -95,7 +96,7 @@ inline void HandleConstruction(
         Vector2 mWorld = GetScreenToWorld2D(GetMousePosition(), camera);
         
         // verifica se está dentro da área jogável
-        if (mWorld.x >= centerX - 1000.0f && mWorld.x <= centerX + 1000.0f && mWorld.y >= groundLevel - 1000.0f && mWorld.y <= groundLevel + 1000.0f){
+        if (mWorld.x >= centerX - MAP_LIMIT && mWorld.x <= centerX + MAP_LIMIT && mWorld.y >= groundLevel - MAP_LIMIT && mWorld.y <= groundLevel + MAP_LIMIT){
             bool holdingT = IsKeyDown(KEY_T);
 
             // define tipo baseado na posição e tecla

@@ -20,7 +20,7 @@
 
 ### 🛠️ Crafting
 - **U** → Craft new unit *(costs 1 sugar)*  
-- **B** → Craft bud *(costs 1 sugar + 20 water + 20 mineral)*  
+- **B** → Craft bud *(costs 1 sugar + 20 mineral)*  
 
 ### 🔄 System
 - **R** → Restart game  

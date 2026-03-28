@@ -5,11 +5,9 @@
 #include "raymath.h"
 
 // atualiza geração de minerais no mapa
-inline void UpdateMinerals(TreeResources& res, float groundLevel, float centerX, float dt) {
-    
+inline void UpdateMinerals(TreeResources& res, float groundLevel, float centerX, float dt){
     // chance aleatória de spawn + limite máximo de minerais
-    if (GetRandomValue(0, 100) < 5 && res.minerals.size() < 25) {
-
+    if (GetRandomValue(0, 100) < 5 && res.minerals.size() < 25){
         // posição horizontal aleatória
         float px = (float)GetRandomValue(centerX - 950, centerX + 950);
 
@@ -24,8 +22,8 @@ inline void UpdateMinerals(TreeResources& res, float groundLevel, float centerX,
         bool tooClose = false;
 
         // evita gerar minerais muito próximos uns dos outros
-        for (const auto& m : res.minerals) {
-            if (Vector2Distance({px, py}, m.position) < 150.0f) {
+        for (const auto& m : res.minerals){
+            if (Vector2Distance({px, py}, m.position) < 150.0f){
                 tooClose = true;
                 break;
             }

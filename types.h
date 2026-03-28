@@ -4,55 +4,55 @@
 #include "raylib.h"
 #include <vector>
 
-// Tipos de nó na árvore
+// tipos de nó na árvore
 enum NodeType { TRUNK, BRANCH, ROOT, LEAF };
 
-// Tipos de recurso que unidades podem carregar
+// tipos de recurso que unidades podem carregar
 enum ResourceType { NONE, WATER, LIGHT, MINERAL, SUGAR };
 
-// Foco de coleta de recursos
+// foco de coleta de recursos
 enum CollectionFocus { FOCUS_NONE, FOCUS_WATER, FOCUS_LIGHT, FOCUS_MINERAL };
 
-// Nó da árvore
+// nó da árvore
 struct Node {
-    Vector2 position; // Posição na tela/mundo
-    NodeType type;    // Tipo do nó
+    Vector2 position; // posição na tela/mundo
+    NodeType type;    // tipo do nó
 };
 
-// Conexão entre dois nós
+// conexão entre dois nós
 struct Connection {
     int from;
     int to;
 };
 
-// Representa poças de água ou minerais
+// representa poças de água ou minerais
 struct Puddle {
     Vector2 position;
     float width;
     float height;
-    float amount; // Quantidade de recurso
+    float amount; // quantidade de recurso
 };
 
-// Unidade que se move e coleta recursos
+// unidade que se move e coleta recursos
 struct Unit {
-    Vector2 currentPos;      // Posição atual
-    int startNodeIndex;      // Nó inicial
-    int targetNodeIndex;     // Nó alvo
-    float progress;          // Progresso do movimento
-    float speed;             // Velocidade
-    ResourceType carrying = NONE; // Recurso carregado
-    ResourceType intent = NONE;   // Intenção de coleta
-    float carryBonus = 1.0f;      // Bônus de transporte
+    Vector2 currentPos;      // posição atual
+    int startNodeIndex;      // nó inicial
+    int targetNodeIndex;     // nó alvo
+    float progress;          // progresso do movimento
+    float speed;             // velocidade
+    ResourceType carrying = NONE; // recurso carregado
+    ResourceType intent = NONE;   // intenção de coleta
+    float carryBonus = 1.0f;      // bônus de transporte
 };
 
-// Recursos da árvore
+// recursos da árvore
 struct TreeResources {
     float waterLevel = 100.0f;
     float lightLevel = 100.0f;
     float mineralLevel = 100.0f;
     float treeHealth = 100.0f;
     float maxLevel = 100.0f;
-    float consumptionRate = 1.8f; // Taxa de consumo por frame
+    float consumptionRate = 1.0f; // taxa de consumo por frame
     std::vector<Puddle> waterPuddles;
     std::vector<Puddle> minerals;
     float rainTimer = 10.0f;
@@ -61,34 +61,34 @@ struct TreeResources {
     float gameTime = 0.0f;
 };
 
-// Estado de cada folha
+// estado de cada folha
 struct LeafStatus {
-    int nodeIndex;       // Índice do nó da folha
-    bool active = true;  // Está ativa para coleta
-    float readyTimer = 0.0f; // Tempo até próxima coleta
+    int nodeIndex;       // índice do nó da folha
+    bool active = true;  // está ativa para coleta
+    float readyTimer = 0.0f; // tempo até próxima coleta
     float maxCooldown = 7.0f;
 };
 
-// Galhos caindo
+// galhos caindo
 struct FallingBranch {
-    Vector2 p1, p2;       // Pontos do galho
-    Vector2 velocity;      // Velocidade do movimento
-    float alpha;           // Transparência
-    float lifeTimer;       // Tempo de vida restante
-    float thickness;       // Espessura do galho
+    Vector2 p1, p2;       // pontos do galho
+    Vector2 velocity;      // velocidade do movimento
+    float alpha;           // transparência
+    float lifeTimer;       // tempo de vida restante
+    float thickness;       // espessura do galho
 };
 
-// Registries globais
-inline std::vector<LeafStatus> leafRegistry;         // Controle de folhas
-inline std::vector<Connection> virtualConnections;  // Conexões virtuais
-inline std::vector<FallingBranch> fallingBranches;  // Galhos caindo
-inline int gSugarCount = 0;                          // Contador de açúcar
-inline int gSugarOrders = 0;                         // Ordens de açúcar
-inline float gBudCount = 1.0f;                       // Contador de brotos
-inline CollectionFocus gCurrentFocus = FOCUS_NONE;  // Foco de coleta atual
+// registries globais
+inline std::vector<LeafStatus> leafRegistry;         // controle de folhas
+inline std::vector<Connection> virtualConnections;  // conexões virtuais
+inline std::vector<FallingBranch> fallingBranches;  // galhos caindo
+inline int gSugarCount = 0;                          // contador de açúcar
+inline int gSugarOrders = 0;                         // ordens de açúcar
+inline float gBudCount = 1.0f;                       // contador de brotos
+inline CollectionFocus gCurrentFocus = FOCUS_NONE;  // foco de coleta atual
 
-// Inicializa o registro de folhas a partir dos nós
-inline void InitLeafRegistry(const std::vector<Node>& nodes) {
+// inicializa o registro de folhas a partir dos nós
+inline void InitLeafRegistry(const std::vector<Node>& nodes){
     leafRegistry.clear();
     for(int i = 0; i < (int)nodes.size(); i++) {
         if(nodes[i].type == LEAF) leafRegistry.push_back({i, true, 0.0f});

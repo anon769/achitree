@@ -19,12 +19,12 @@ struct WeatherSystem {
 inline WeatherSystem gWeather = { 0.0f, 0.1f, 0.2f, 0.0f };
 
 // atualiza o comportamento do vento ao longo do tempo
-inline void UpdateWeather(float dt) {
+inline void UpdateWeather(float dt){
     gWeather.windTime += dt;
     gWeather.windChangeTimer -= dt;
     
     // quando o timer acaba, escolhe uma nova intensidade de vento
-    if (gWeather.windChangeTimer <= 0) {
+    if (gWeather.windChangeTimer <= 0){
         gWeather.targetWind = (float)GetRandomValue(0, 60) / 100.0f; // 0.0 → 0.6
         gWeather.windChangeTimer = (float)GetRandomValue(5, 12);     // próximo ajuste em alguns segundos
     }
@@ -34,16 +34,15 @@ inline void UpdateWeather(float dt) {
 }
 
 // calcula o deslocamento causado pelo vento em um ponto
-inline Vector2 GetWindOffset(Vector2 pos, float heightThreshold, NodeType type, const std::vector<Node>& nodes) {
-    
+inline Vector2 GetWindOffset(Vector2 pos, float heightThreshold, NodeType type, const std::vector<Node>& nodes){
     // não aplica vento em partes baixas ou estruturas fixas
     if (pos.y > heightThreshold + 5.0f || type == ROOT || type == TRUNK)
         return { 0, 0 };
     
     // calcula a distância até o tronco mais próximo
     float minTrunkDist = 9999.0f;
-    for (const auto& node : nodes) {
-        if (node.type == TRUNK) {
+    for (const auto& node : nodes){
+        if (node.type == TRUNK){
             float d = Vector2Distance(pos, node.position);
             if (d < minTrunkDist) minTrunkDist = d;
         }

@@ -14,17 +14,16 @@
 inline std::vector<Unit>* gUnitsPtr = nullptr;
 
 // registra o vetor de unidades no sistema de input
-inline void RegisterUnits(std::vector<Unit>& units) {
+inline void RegisterUnits(std::vector<Unit>& units){
     gUnitsPtr = &units;
 }
 
 // controla zoom e movimento da câmera
-inline void HandleCamera(Camera2D& camera, float centerX, float groundLevel) {
-
+inline void HandleCamera(Camera2D& camera, float centerX, float groundLevel){
     float wheel = GetMouseWheelMove();
 
     // zoom com foco no mouse
-    if (wheel != 0) {
+    if (wheel != 0){
         Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), camera);
         camera.offset = GetMousePosition();
         camera.target = mouseWorldPos;
@@ -32,7 +31,7 @@ inline void HandleCamera(Camera2D& camera, float centerX, float groundLevel) {
     }
 
     // arrastar com botão direito
-    if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)) {
+    if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)){
         Vector2 delta = Vector2Scale(GetMouseDelta(), -1.0f / camera.zoom);
         camera.target = Vector2Add(camera.target, delta);
     }
@@ -53,9 +52,8 @@ inline void HandleConstruction(
     float& introTimer,
     bool& introFinished
 ) {
-
     // reset completo do jogo
-    if (IsKeyPressed(KEY_R)) {
+    if (IsKeyPressed(KEY_R)){
         nodes.clear();
         connections.clear();
 
@@ -92,14 +90,12 @@ inline void HandleConstruction(
     if (nodes.empty()) return;
 
     // clique esquerdo → construir
-    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
 
         Vector2 mWorld = GetScreenToWorld2D(GetMousePosition(), camera);
         
         // verifica se está dentro da área jogável
-        if (mWorld.x >= centerX - 1000.0f && mWorld.x <= centerX + 1000.0f &&
-            mWorld.y >= groundLevel - 1000.0f && mWorld.y <= groundLevel + 1000.0f) {
-            
+        if (mWorld.x >= centerX - 1000.0f && mWorld.x <= centerX + 1000.0f && mWorld.y >= groundLevel - 1000.0f && mWorld.y <= groundLevel + 1000.0f){
             bool holdingT = IsKeyDown(KEY_T);
 
             // define tipo baseado na posição e tecla
@@ -110,9 +106,9 @@ inline void HandleConstruction(
             float budCost = (holdingT && !clickingBelowGround) ? 2.0f : 1.0f;
             
             // desconto se estiver em trilha de minhoca
-            if (clickingBelowGround) {
-                for (const auto& tp : gWormTrails) {
-                    if (Vector2Distance(mWorld, tp.position) < 15.0f) {
+            if (clickingBelowGround){
+                for (const auto& tp : gWormTrails){
+                    if (Vector2Distance(mWorld, tp.position) < 15.0f){
                         budCost = 0.5f;
                         break;
                     }
@@ -126,25 +122,24 @@ inline void HandleConstruction(
             float minDist = 250.0f;
             
             // procura nó válido mais próximo para conectar
-            for (int i = 0; i < (int)nodes.size(); i++) {
-
+            for (int i = 0; i < (int)nodes.size(); i++){
                 bool canConnect = false;
 
                 // regras de conexão por tipo
-                if (typeToBuild == ROOT) {
+                if (typeToBuild == ROOT){
                     if (nodes[i].type == ROOT || nodes[i].type == TRUNK) canConnect = true;
                 } else {
                     if (nodes[i].type != ROOT) canConnect = true;
                 }
 
-                if (canConnect) {
+                if (canConnect){
                     // considera deslocamento do vento na posição
                     Vector2 effectivePos = Vector2Add(nodes[i].position,
                         GetWindOffset(nodes[i].position, groundLevel, nodes[i].type, nodes));
 
                     float d = Vector2Distance(mWorld, effectivePos);
 
-                    if (d < minDist) {
+                    if (d < minDist){
                         minDist = d;
                         closest = i;
                     }
@@ -152,8 +147,7 @@ inline void HandleConstruction(
             }
 
             // se encontrou um nó para conectar
-            if (closest != -1) {
-
+            if (closest != -1){
                 Vector2 effectiveParentPos = Vector2Add(nodes[closest].position,
                     GetWindOffset(nodes[closest].position, groundLevel, nodes[closest].type, nodes));
 
@@ -162,7 +156,7 @@ inline void HandleConstruction(
                 // limite de distância (raiz pode ir mais longe)
                 float maxAllowedDist = (clickingBelowGround) ? 150.0f : 45.0f;
                 
-                if (distToParent <= maxAllowedDist) {
+                if (distToParent <= maxAllowedDist){
 
                     // consome recurso
                     gBudCount -= budCost;
@@ -183,7 +177,7 @@ inline void HandleConstruction(
                         leafRegistry.push_back({newNodeIdx, true, 0.0f});
 
                     // se for tronco → converte caminho inteiro até a raiz em tronco
-                    if (typeToBuild == TRUNK) {
+                    if (typeToBuild == TRUNK){
 
                         std::map<int, int> parentMap;
                         std::vector<int> q;
@@ -198,7 +192,7 @@ inline void HandleConstruction(
                         while(head < (int)q.size()){
                             int curr = q[head++];
 
-                            if(curr == newNodeIdx) {
+                            if(curr == newNodeIdx){
                                 found = true;
                                 break;
                             }

@@ -8,8 +8,7 @@
 #include <vector>
 
 // desenha a animação inicial de crescimento da árvore
-inline void DrawIntro(float introTimer, float introDuration, float centerX, float groundLevel, const std::vector<Node>& nodes) {
-    
+inline void DrawIntro(float introTimer, float introDuration, float centerX, float groundLevel, const std::vector<Node>& nodes){
     // progresso da animação (0 → 1)
     float introProgress = fminf(introTimer / introDuration, 1.0f);
 
@@ -36,23 +35,21 @@ inline void DrawIntro(float introTimer, float introDuration, float centerX, floa
 }
 
 // desenha overlay da tela (pause + fade da intro)
-inline void DrawGameOverlay(bool introFinished, float introTimer, bool paused, int sw, int sh) {
-
+inline void DrawGameOverlay(bool introFinished, float introTimer, bool paused, int sw, int sh){
     // escurece a tela se estiver pausado
-    if (paused) {
+    if (paused){
         DrawRectangle(0, 0, sw, sh, Fade(BLACK, 0.3f));
     }
     
     // fade-in inicial (vai sumindo com o tempo)
-    if (!introFinished) {
+    if (!introFinished){
         float fadeAlpha = Clamp(1.0f - (introTimer / 1.5f), 0.0f, 1.0f);
         DrawRectangle(0, 0, sw, sh, Fade(BLACK, fadeAlpha));
     }
 }
 
 // tela de game over
-inline void DrawGameOver(int sw, int sh) {
-
+inline void DrawGameOver(int sw, int sh){
     const char* mainText = "The ecosystem has collapsed.";
     const char* subText = "Press ESC to quit or R to restart.";
 

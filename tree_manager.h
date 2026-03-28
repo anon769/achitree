@@ -12,7 +12,7 @@
 #include <set>
 
 // atualiza toda a simulação do ecossistema
-inline void UpdateEcosystem(std::vector<Unit>& units, std::vector<Node>& nodes, std::vector<Connection>& connections, TreeResources& res, int sw, int sh, Camera2D camera) {
+inline void UpdateEcosystem(std::vector<Unit>& units, std::vector<Node>& nodes, std::vector<Connection>& connections, TreeResources& res, int sw, int sh, Camera2D camera){
 
     float dt = GetFrameTime();
 
@@ -36,8 +36,8 @@ inline void UpdateEcosystem(std::vector<Unit>& units, std::vector<Node>& nodes, 
     HandleWeatherCycle(res, dt, centerX, ground);
     
     // converte açúcar + mineral em bud (recurso de construção)
-    if (IsKeyPressed(KEY_B)) {
-        if (gSugarCount >= 1 && res.mineralLevel >= 20.0f) {
+    if (IsKeyPressed(KEY_B)){
+        if (gSugarCount >= 1 && res.mineralLevel >= 20.0f){
             gSugarCount -= 1;
             res.mineralLevel -= 20.0f;
             gBudCount += 1;
@@ -45,7 +45,7 @@ inline void UpdateEcosystem(std::vector<Unit>& units, std::vector<Node>& nodes, 
     }
 
     // atualiza cooldown das folhas
-    for (auto& lr : leafRegistry) {
+    for (auto& lr : leafRegistry){
         if (lr.readyTimer > 0)
             lr.readyTimer -= dt;
     }
@@ -64,11 +64,11 @@ inline void UpdateEcosystem(std::vector<Unit>& units, std::vector<Node>& nodes, 
     // -----------------------------
     // QUEBRA DE GALHOS PELO VENTO
     // -----------------------------
-    if (gWeather.windStrength >= 0.42f) {
+    if (gWeather.windStrength >= 0.42f){
 
         // cria mapa de adjacência (grafo)
         std::map<int, std::vector<int>> adj;
-        for (const auto& c : connections) {
+        for (const auto& c : connections){
             adj[c.from].push_back(c.to);
             adj[c.to].push_back(c.from);
         }
@@ -83,7 +83,7 @@ inline void UpdateEcosystem(std::vector<Unit>& units, std::vector<Node>& nodes, 
             if (depth >= 3) return false; 
             if (adj.find(curr) == adj.end()) return false;
 
-            for (int neighbor : adj[curr]) {
+            for (int neighbor : adj[curr]){
                 if (neighbor != prev) {
                     if (checkSequence(neighbor, curr, depth + 1))
                         return true;
@@ -95,21 +95,17 @@ inline void UpdateEcosystem(std::vector<Unit>& units, std::vector<Node>& nodes, 
         bool changed = true;
 
         // loop até estabilizar cortes
-        while (changed) {
+        while (changed){
             changed = false;
 
-            for (int i = 0; i < (int)connections.size(); i++) {
-
+            for (int i = 0; i < (int)connections.size(); i++){
                 int n3 = connections[i].from;
                 int n4 = connections[i].to;
 
                 // só avalia galhos (não raiz/tronco)
-                if (nodes[n3].type != ROOT && nodes[n3].type != TRUNK &&
-                    nodes[n4].type != ROOT && nodes[n4].type != TRUNK) {
-
+                if (nodes[n3].type != ROOT && nodes[n3].type != TRUNK && nodes[n4].type != ROOT && nodes[n4].type != TRUNK){
                     // se não tem suporte → quebra
-                    if (!checkSequence(n3, n4, 1)) {
-
+                    if (!checkSequence(n3, n4, 1)){
                         std::set<int> nodesToRemove;
 
                         // encontra subárvore desconectada
@@ -119,7 +115,7 @@ inline void UpdateEcosystem(std::vector<Unit>& units, std::vector<Node>& nodes, 
 
                             nodesToRemove.insert(curr);
 
-                            for (int j = 0; j < (int)connections.size(); j++) {
+                            for (int j = 0; j < (int)connections.size(); j++){
                                 int other = -1;
 
                                 if (connections[j].from == curr && connections[j].to != prev)
@@ -135,10 +131,8 @@ inline void UpdateEcosystem(std::vector<Unit>& units, std::vector<Node>& nodes, 
                         findSubtree(n4, n3);
 
                         // remove conexões e cria galhos caindo
-                        for (int j = (int)connections.size() - 1; j >= 0; j--) {
-                            if (nodesToRemove.count(connections[j].from) ||
-                                nodesToRemove.count(connections[j].to)) {
-
+                        for (int j = (int)connections.size() - 1; j >= 0; j--){
+                            if (nodesToRemove.count(connections[j].from) || nodesToRemove.count(connections[j].to)){
                                 Vector2 p1 = Vector2Add(nodes[connections[j].from].position,
                                     GetWindOffset(nodes[connections[j].from].position, ground, nodes[connections[j].from].type, nodes));
 
@@ -157,7 +151,7 @@ inline void UpdateEcosystem(std::vector<Unit>& units, std::vector<Node>& nodes, 
                         }
 
                         // reposiciona unidades afetadas
-                        for (auto& unit : units) {
+                        for (auto& unit : units){
                             if (nodesToRemove.count(unit.startNodeIndex) ||
                                 nodesToRemove.count(unit.targetNodeIndex)) {
 
@@ -171,10 +165,9 @@ inline void UpdateEcosystem(std::vector<Unit>& units, std::vector<Node>& nodes, 
                         }
 
                         // remove nós (marca como inválidos)
-                        for (int nodeIdx : nodesToRemove) {
-
+                        for (int nodeIdx : nodesToRemove){
                             // remove folhas do registro
-                            for (int j = (int)leafRegistry.size() - 1; j >= 0; j--) {
+                            for (int j = (int)leafRegistry.size() - 1; j >= 0; j--){
                                 if (leafRegistry[j].nodeIndex == nodeIdx)
                                     leafRegistry.erase(leafRegistry.begin() + j);
                             }
@@ -194,8 +187,7 @@ inline void UpdateEcosystem(std::vector<Unit>& units, std::vector<Node>& nodes, 
     // -----------------------------
     // ATUALIZA GALHOS CAINDO
     // -----------------------------
-    for (int i = (int)fallingBranches.size() - 1; i >= 0; i--) {
-
+    for (int i = (int)fallingBranches.size() - 1; i >= 0; i--){
         // movimento
         fallingBranches[i].p1 = Vector2Add(fallingBranches[i].p1,
             Vector2Scale(fallingBranches[i].velocity, dt));
@@ -213,7 +205,7 @@ inline void UpdateEcosystem(std::vector<Unit>& units, std::vector<Node>& nodes, 
         // tempo de vida + fade
         fallingBranches[i].lifeTimer -= dt;
 
-        if (fallingBranches[i].lifeTimer <= 0) {
+        if (fallingBranches[i].lifeTimer <= 0){
             fallingBranches[i].alpha -= dt * 0.5f;
 
             if (fallingBranches[i].alpha <= 0)
@@ -226,16 +218,13 @@ inline void UpdateEcosystem(std::vector<Unit>& units, std::vector<Node>& nodes, 
     // -----------------------------
     virtualConnections.clear();
 
-    for(int i = 0; i < (int)nodes.size(); i++) {
-        for(int j = i + 1; j < (int)nodes.size(); j++) {
-
-            if(nodes[i].type == ROOT && nodes[j].type == ROOT) {
-
-                if(Vector2Distance(nodes[i].position, nodes[j].position) < 100.0f) {
-
+    for(int i = 0; i < (int)nodes.size(); i++){
+        for(int j = i + 1; j < (int)nodes.size(); j++){
+            if(nodes[i].type == ROOT && nodes[j].type == ROOT){
+                if(Vector2Distance(nodes[i].position, nodes[j].position) < 100.0f){
                     bool exists = false;
 
-                    for(auto& c : connections) {
+                    for(auto& c : connections){
                         if((c.from == i && c.to == j) ||
                            (c.from == j && c.to == i)) {
                             exists = true;

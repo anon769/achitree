@@ -15,25 +15,24 @@ struct WorldConfig {
 };
 
 // gera poças de água espalhadas pelo mapa
-inline void GenerateWaterPuddles(TreeResources& res, const WorldConfig& config) {
-    
+inline void GenerateWaterPuddles(TreeResources& res, const WorldConfig& config){
     // poça inicial fixa (garante recurso perto do início)
     res.waterPuddles.push_back({{config.centerX, config.groundLevel + 100}, 120, 60, 100.0f});
 
     // gera poças adicionais aleatórias
-    for(int i = 0; i < 5; i++) {
+    for(int i = 0; i < 5; i++){
         float px, py;
         bool validPos = false;
         int attempts = 0;
 
         // tenta achar uma posição válida (evitando sobreposição)
-        while (!validPos && attempts < 10) {
+        while (!validPos && attempts < 10){
 
             // posição horizontal aleatória ao redor do centro
             px = (float)GetRandomValue(config.centerX - 950, config.centerX + 950);
             
             // define altura com leve bias para mais perto do chão
-            if (GetRandomValue(1, 3) <= 2) {
+            if (GetRandomValue(1, 3) <= 2){
                 py = (float)GetRandomValue(config.groundLevel + 50, config.groundLevel + 450);
             } else {
                 py = (float)GetRandomValue(config.groundLevel + 451, config.groundLevel + 950);
@@ -42,8 +41,8 @@ inline void GenerateWaterPuddles(TreeResources& res, const WorldConfig& config) 
             validPos = true;
 
             // evita poças muito próximas umas das outras
-            for (const auto& p : res.waterPuddles) {
-                if (Vector2Distance({px, py}, p.position) < 200.0f) {
+            for (const auto& p : res.waterPuddles){
+                if (Vector2Distance({px, py}, p.position) < 200.0f){
                     validPos = false;
                     break;
                 }
@@ -61,8 +60,7 @@ inline void GenerateWaterPuddles(TreeResources& res, const WorldConfig& config) 
 }
 
 // cria a estrutura inicial da árvore (mínima)
-inline void InitTreeStructure(std::vector<Node>& nodes, std::vector<Connection>& connections, const WorldConfig& config) {
-    
+inline void InitTreeStructure(std::vector<Node>& nodes, std::vector<Connection>& connections, const WorldConfig& config){
     // nó principal (tronco)
     nodes.push_back({{config.centerX, config.groundLevel}, TRUNK});
 
@@ -78,8 +76,7 @@ inline void InitTreeStructure(std::vector<Node>& nodes, std::vector<Connection>&
 }
 
 // inicializa um novo jogo
-inline void SetupNewGame(TreeResources& res, std::vector<Node>& nodes, std::vector<Connection>& connections, const WorldConfig& config) {
-    
+inline void SetupNewGame(TreeResources& res, std::vector<Node>& nodes, std::vector<Connection>& connections, const WorldConfig& config){
     // gera recursos no mapa
     GenerateWaterPuddles(res, config);
 

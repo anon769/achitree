@@ -9,8 +9,7 @@
 #include "game_render.h"
 #include <vector>
 
-int main() {
-
+int main(){
     // inicializa janela em fullscreen
     InitWindow(0, 0, "Eco-Logistics: Survival");
     if (!IsWindowFullscreen()) ToggleFullscreen();
@@ -57,7 +56,7 @@ int main() {
     SetTargetFPS(60);
 
     // loop principal
-    while (!WindowShouldClose()) {
+    while (!WindowShouldClose()){
 
         // pausa com espaço
         if (IsKeyPressed(KEY_SPACE)) paused = !paused;
@@ -68,25 +67,25 @@ int main() {
                            introTimer, introFinished);
 
         // atualiza intro (zoom + tempo)
-        if (!introFinished) {
+        if (!introFinished){
             introTimer += GetFrameTime();
 
             // zoom suavemente de perto → normal
             camera.zoom = Lerp(3.0f, 1.0f, fminf(introTimer / introDuration, 1.0f));
 
-            if (introTimer >= introDuration) {
+            if (introTimer >= introDuration){
                 introFinished = true;
                 camera.zoom = 1.0f;
             }
         }
 
         // gameplay normal
-        if (!collapsed && introFinished) {
+        if (!collapsed && introFinished){
 
             // controle da câmera
             HandleCamera(camera, config.centerX, config.groundLevel);
 
-            if (!paused) {
+            if (!paused){
 
                 // garante pelo menos uma unidade ativa
                 if (nodes.size() >= 2 && units.empty()) {
@@ -112,12 +111,12 @@ int main() {
         BeginDrawing();
             ClearBackground(BLACK);
 
-            if (!collapsed) {
+            if (!collapsed){
 
                 BeginMode2D(camera);
 
                     // desenha intro ou jogo normal
-                    if (!introFinished) {
+                    if (!introFinished){
                         DrawIntro(introTimer, introDuration,
                                   config.centerX, config.groundLevel,
                                   nodes);
@@ -130,7 +129,7 @@ int main() {
                 EndMode2D();
                 
                 // UI só aparece depois da intro
-                if (introFinished) {
+                if (introFinished){
                     DrawUI(treeRes, sw, sh, nodes,
                            config.groundLevel, camera);
                 }

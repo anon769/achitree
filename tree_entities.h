@@ -8,12 +8,12 @@
 #include "environment.h"
 
 // atualiza todas as unidades (movimento + lógica + coleta/entrega)
-inline void UpdateUnits(std::vector<Unit>& units, std::vector<Node>& nodes, const std::vector<Connection>& connections, TreeResources& res, float ground, float dt) {
+inline void UpdateUnits(std::vector<Unit>& units, std::vector<Node>& nodes, const std::vector<Connection>& connections, TreeResources& res, float ground, float dt){
 
     // input manual (spawn, controle, etc)
     HandleUnitInput(units, nodes[0].position, res);
 
-    for (auto& unit : units) {
+    for (auto& unit : units){
 
         // progresso de movimento entre nós
         float dist = Vector2Distance(nodes[unit.startNodeIndex].position,
@@ -24,7 +24,7 @@ inline void UpdateUnits(std::vector<Unit>& units, std::vector<Node>& nodes, cons
             : 1.0f;
         
         // chegou no destino
-        if (unit.progress >= 1.0f) {
+        if (unit.progress >= 1.0f){
 
             unit.progress = 0.0f;
             unit.startNodeIndex = unit.targetNodeIndex;
@@ -37,22 +37,18 @@ inline void UpdateUnits(std::vector<Unit>& units, std::vector<Node>& nodes, cons
             // -----------------------------
             // INTERAÇÃO COM FOLHAS
             // -----------------------------
-            if (currNode.type == LEAF && (unit.intent == LIGHT || unit.intent == SUGAR)) {
-
-                for (auto& lr : leafRegistry) {
-                    if (lr.nodeIndex == unit.startNodeIndex) {
-
-                        if (lr.active && lr.readyTimer <= 0) {
-
+            if (currNode.type == LEAF && (unit.intent == LIGHT || unit.intent == SUGAR)){
+                for (auto& lr : leafRegistry){
+                    if (lr.nodeIndex == unit.startNodeIndex){
+                        if (lr.active && lr.readyTimer <= 0){
                             // transforma água em açúcar
-                            if (unit.carrying == WATER && unit.intent == SUGAR) {
+                            if (unit.carrying == WATER && unit.intent == SUGAR){
                                 unit.carrying = SUGAR;
                                 unit.intent = NONE;
                                 lr.readyTimer = lr.maxCooldown;
 
                             // coleta luz
-                            } else if (unit.carrying == NONE && unit.intent == LIGHT) {
-
+                            } else if (unit.carrying == NONE && unit.intent == LIGHT){
                                 unit.carrying = LIGHT; 
                                 unit.intent = NONE;
                                 lr.readyTimer = lr.maxCooldown;
@@ -68,10 +64,9 @@ inline void UpdateUnits(std::vector<Unit>& units, std::vector<Node>& nodes, cons
             // -----------------------------
             // INTERAÇÃO COM TRONCO (BASE)
             // -----------------------------
-            } else if (unit.startNodeIndex == 0) {
-
+            } else if (unit.startNodeIndex == 0){
                 // entrega açúcar (objetivo principal)
-                if (unit.carrying == SUGAR) {
+                if (unit.carrying == SUGAR){
                     gSugarCount++;
                     if (gSugarOrders > 0) gSugarOrders--;
 
@@ -79,17 +74,15 @@ inline void UpdateUnits(std::vector<Unit>& units, std::vector<Node>& nodes, cons
                     unit.intent = NONE;
 
                 // entrega recursos básicos
-                } else if (unit.carrying == WATER || unit.carrying == LIGHT || unit.carrying == MINERAL) {
-
+                } else if (unit.carrying == WATER || unit.carrying == LIGHT || unit.carrying == MINERAL){
                     // água pode ser desviada pra produção de açúcar
                     bool shouldPassThrough = (gSugarOrders > 0 && unit.carrying == WATER);
 
-                    if (!shouldPassThrough) {
-
+                    if (!shouldPassThrough){
                         if (unit.carrying == WATER)
                             res.waterLevel = fminf(res.waterLevel + 20.0f, res.maxLevel);
 
-                        if (unit.carrying == LIGHT) {
+                        if (unit.carrying == LIGHT){
                             float lightAmount = 20.0f * unit.carryBonus;
                             res.lightLevel = fminf(res.lightLevel + lightAmount, res.maxLevel);
                             unit.carryBonus = 1.0f;
@@ -108,12 +101,12 @@ inline void UpdateUnits(std::vector<Unit>& units, std::vector<Node>& nodes, cons
             // -----------------------------
             } else if (currNode.type == ROOT &&
                        unit.carrying == NONE &&
-                       finalDestination == unit.startNodeIndex) {
+                       finalDestination == unit.startNodeIndex){
 
                 // coleta água
-                if (unit.intent == WATER) {
-                    for (auto& p : res.waterPuddles) {
-                        if (IsPointInPuddle(currNode.position, p)) {
+                if (unit.intent == WATER){
+                    for (auto& p : res.waterPuddles){
+                        if (IsPointInPuddle(currNode.position, p)){
                             unit.carrying = WATER;
                             p.amount -= 20.0f;
                             break;
@@ -121,9 +114,9 @@ inline void UpdateUnits(std::vector<Unit>& units, std::vector<Node>& nodes, cons
                     }
 
                 // coleta mineral
-                } else if (unit.intent == MINERAL) {
-                    for (auto& m : res.minerals) {
-                        if (IsPointInPuddle(currNode.position, m)) {
+                } else if (unit.intent == MINERAL){
+                    for (auto& m : res.minerals){
+                        if (IsPointInPuddle(currNode.position, m)){
                             unit.carrying = MINERAL;
                             m.amount -= 20.0f;
                             break;

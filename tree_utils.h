@@ -6,7 +6,7 @@
 #include <vector>
 
 // checa se um ponto está dentro de uma poça (puddle) elíptica
-inline bool IsPointInPuddle(Vector2 p, const Puddle& puddle) {
+inline bool IsPointInPuddle(Vector2 p, const Puddle& puddle){
     if (puddle.amount <= 0) return false; // poça vazia não conta
 
     // normaliza a posição em relação ao centro e tamanho da poça
@@ -18,10 +18,9 @@ inline bool IsPointInPuddle(Vector2 p, const Puddle& puddle) {
 }
 
 // gerencia o ciclo de chuva e spawn de poças no mundo
-inline void HandleWeatherCycle(TreeResources& res, float dt, float centerX, float ground) {
-
+inline void HandleWeatherCycle(TreeResources& res, float dt, float centerX, float ground){
     // decrementa timer e alterna estado chuva/sol
-    if ((res.rainTimer -= dt) <= 0) {
+    if ((res.rainTimer -= dt) <= 0){
         if (!res.isRaining) {
             res.isRaining = true;
             res.rainTimer = (float)GetRandomValue(3, 6); // duração aleatória da chuva
@@ -32,7 +31,7 @@ inline void HandleWeatherCycle(TreeResources& res, float dt, float centerX, floa
     }
     
     // se estiver chovendo, chance de gerar novas poças
-    if (res.isRaining && GetRandomValue(0, 100) < 5 && res.waterPuddles.size() < 20) {
+    if (res.isRaining && GetRandomValue(0, 100) < 5 && res.waterPuddles.size() < 20){
         float pw = (float)GetRandomValue(70, 150); // largura da poça
         float spawnX = (float)GetRandomValue((int)centerX - 950, (int)centerX + 950);
         float spawnY = (GetRandomValue(1, 3) <= 2) ? 
@@ -41,7 +40,7 @@ inline void HandleWeatherCycle(TreeResources& res, float dt, float centerX, floa
 
         // evita poças muito próximas umas das outras
         bool tooClose = false;
-        for (const auto& p : res.waterPuddles) {
+        for (const auto& p : res.waterPuddles){
             if (Vector2Distance({spawnX, spawnY}, p.position) < 200.0f) {
                 tooClose = true;
                 break;
@@ -49,7 +48,7 @@ inline void HandleWeatherCycle(TreeResources& res, float dt, float centerX, floa
         }
 
         // adiciona a poça se a posição for válida
-        if (!tooClose) {
+        if (!tooClose){
             res.waterPuddles.push_back({{spawnX, spawnY}, pw, pw * 0.5f, 100.0f});
         }
     }

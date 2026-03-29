@@ -65,6 +65,8 @@ inline void HandleConstruction(
         fallingBranches.clear();
         virtualConnections.clear();
         gWormTrails.clear();
+        gWorms.clear();
+        gWormIdCounter = 0;
 
         // reseta recursos e estado global
         treeRes = {};

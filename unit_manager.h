@@ -8,7 +8,7 @@
 
 // adiciona uma nova unidade na posição inicial
 void AddUnit(std::vector<Unit>& units, Vector2 startPos){
-    units.push_back({startPos, 0, 1, 0.0f, UNIT_SPEED_NORMAL, NONE});
+    units.push_back({startPos, 0, 0, 0.0f, UNIT_SPEED_NORMAL, NONE});
 }
 
 // remove a última unidade da lista

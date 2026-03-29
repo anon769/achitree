@@ -5,6 +5,7 @@
 #include "raymath.h"
 #include <queue>
 #include <map>
+#include <algorithm>
 
 // vê se o nó está dentro da poça de água (ou mineral, já que usa mesma lógica)
 inline bool IsPointInPuddleAI(Vector2 p, const Puddle& puddle){
@@ -35,14 +36,12 @@ inline int DecideNextNode(Unit& unit, const std::vector<Node>& nodes, const std:
     // CASO: unidade já está carregando algo
     // -----------------------------
     if (unit.carrying != NONE){
-        // se precisa fazer açúcar e está com água → leva para folha
         if (gSugarOrders > 0 && unit.carrying == WATER){
             unit.intent = SUGAR;
 
             float bestDist = 999999.0f;
             int bestLeaf = -1;
 
-            // procura folha pronta mais próxima
             for (auto& lr : leafRegistry){
                 if (lr.active && lr.readyTimer <= 0){
                     float d = Vector2Distance(nodes[unit.startNodeIndex].position, nodes[lr.nodeIndex].position);
@@ -54,9 +53,8 @@ inline int DecideNextNode(Unit& unit, const std::vector<Node>& nodes, const std:
             }
 
             if (bestLeaf != -1) target = bestLeaf;
-            else target = trunkIdx; // fallback
+            else target = trunkIdx;
         } else {
-            // qualquer outro caso → volta pro tronco
             unit.intent = NONE;
             target = trunkIdx;
         }
@@ -83,12 +81,10 @@ inline int DecideNextNode(Unit& unit, const std::vector<Node>& nodes, const std:
         for (auto& m : res.minerals)
             if (m.amount > 0) mineralAvailable = true;
 
-        // se existe algum recurso disponível
         if (leafAvailable || puddleAvailable || mineralAvailable){
             NodeType goal = ROOT;
             ResourceType goalRes = NONE;
             
-            // prioridade definida pelo jogador/sistema
             if (gCurrentFocus == FOCUS_WATER){
                 goal = puddleAvailable ? ROOT : TRUNK;
                 goalRes = WATER;
@@ -99,7 +95,6 @@ inline int DecideNextNode(Unit& unit, const std::vector<Node>& nodes, const std:
                 goal = leafAvailable ? LEAF : TRUNK;
                 goalRes = LIGHT;
             } else {
-                // decisão automática baseada nos níveis
                 if (gSugarOrders > 0 && puddleAvailable){
                     goal = ROOT; goalRes = WATER;
                 } else if (res.mineralLevel < res.waterLevel &&
@@ -117,62 +112,78 @@ inline int DecideNextNode(Unit& unit, const std::vector<Node>& nodes, const std:
 
             unit.intent = goalRes;
 
-            float bestDist = 999999.0f;
-            int bestNodeIdx = -1;
-            bool foundProductive = false;
+            // -----------------------------
+            // SCORING DINÂMICO COM URGÊNCIA E LIMITE DE RECURSO
+            // -----------------------------
+            struct Candidate {
+                int nodeIdx;
+                float score;
+            };
 
-            // procura o melhor nó do tipo desejado
+            const float MAX_WATER = 100.0f;
+            const float MAX_MINERAL = 100.0f;
+            const float MAX_LIGHT = 100.0f;
+
+            std::vector<Candidate> candidates;
+            Vector2 unitPos = nodes[unit.startNodeIndex].position;
+
             for (int i = 0; i < (int)nodes.size(); i++){
-                if (nodes[i].type == goal){
-                    bool prod = false;
+                if (nodes[i].type != goal) continue;
 
-                    // verifica se esse nó realmente produz recurso
-                    if (goal == LEAF){
-                        for (auto& lr : leafRegistry)
-                            if (lr.nodeIndex == i && lr.active && lr.readyTimer <= 0)
-                                prod = true;
-                    } else {
-                        if (goalRes == WATER){
-                            for (auto& p : res.waterPuddles)
-                                if (IsPointInPuddleAI(nodes[i].position, p))
-                                    prod = true;
+                bool prod = false;
 
-                        } else if (goalRes == MINERAL){
-                            for (auto& m : res.minerals)
-                                if (IsPointInPuddleAI(nodes[i].position, m))
-                                    prod = true;
-                        }
-                    }
-
-                    // prioriza nós que realmente produzem
-                    if (prod){
-                        if (!foundProductive){
-                            foundProductive = true;
-                            bestDist = 999999.0f;
-                        }
-                    } else if (foundProductive) continue;
-
-                    float d = Vector2Distance(nodes[unit.startNodeIndex].position,
-                                              nodes[i].position);
-
-                    if (d < bestDist) {
-                        bestDist = d;
-                        bestNodeIdx = i;
-                    }
+                if (goal == LEAF){
+                    for (auto& lr : leafRegistry)
+                        if (lr.nodeIndex == i && lr.active && lr.readyTimer <= 0)
+                            prod = true;
+                } else if (goalRes == WATER){
+                    for (auto& p : res.waterPuddles)
+                        if (IsPointInPuddleAI(nodes[i].position, p))
+                            prod = true;
+                } else if (goalRes == MINERAL){
+                    for (auto& m : res.minerals)
+                        if (IsPointInPuddleAI(nodes[i].position, m))
+                            prod = true;
                 }
+
+                if (!prod) continue;
+
+                float dist = Vector2Distance(unitPos, nodes[i].position);
+
+                // calcula urgência considerando nível atual e limite máximo
+                float urgency = 0.0f;
+
+                if (goalRes == WATER){
+                    float fillRatio = res.waterLevel / MAX_WATER;
+                    urgency = (fillRatio < 0.8f) ? (1.0f - fillRatio) : 0.0f;
+                } else if (goalRes == MINERAL){
+                    float fillRatio = res.mineralLevel / MAX_MINERAL;
+                    urgency = (fillRatio < 0.8f) ? (1.0f - fillRatio) : 0.0f;
+                } else if (goalRes == LIGHT){
+                    float fillRatio = res.lightLevel / MAX_LIGHT;
+                    urgency = (fillRatio < 0.8f) ? (1.0f - fillRatio) : 0.0f;
+                }
+
+                if (urgency <= 0.0f) continue; // ignora nós se recurso quase cheio
+
+                float score = urgency / (dist + 1.0f);
+
+                candidates.push_back({i, score});
             }
 
-            if (bestNodeIdx != -1) target = bestNodeIdx;
+            if (!candidates.empty()){
+                auto best = std::max_element(candidates.begin(), candidates.end(),
+                                             [](const Candidate& a, const Candidate& b){ return a.score < b.score; });
+                target = best->nodeIdx;
+            } else {
+                target = trunkIdx;
+            }
         }
     }
 
-    // se já está no alvo, não precisa andar
     if (unit.startNodeIndex == target)
         return unit.startNodeIndex;
 
-    // -----------------------------
-    // PATHFINDING (BFS simples)
-    // -----------------------------
     std::queue<int> q;
     q.push(unit.startNodeIndex);
 
@@ -190,7 +201,6 @@ inline int DecideNextNode(Unit& unit, const std::vector<Node>& nodes, const std:
             break;
         }
 
-        // conexões normais
         for (auto& c : connections){
             int next = -1;
 
@@ -203,7 +213,6 @@ inline int DecideNextNode(Unit& unit, const std::vector<Node>& nodes, const std:
             }
         }
 
-        // conexões virtuais (atalhos, etc)
         for (auto& vc : virtualConnections){
             int next = -1;
 
@@ -217,18 +226,14 @@ inline int DecideNextNode(Unit& unit, const std::vector<Node>& nodes, const std:
         }
     }
 
-    // reconstrói o caminho (pega só o próximo passo)
     if (found){
         int path = target;
-
         while (parent[path] != unit.startNodeIndex && parent[path] != -1){
             path = parent[path];
         }
-
         return path;
     }
 
-    // fallback: não encontrou caminho
     return unit.startNodeIndex;
 }
 

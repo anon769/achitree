@@ -31,7 +31,7 @@ int main(){
     InitLeafRegistry(nodes);
 
     // cria a unidade inicial
-    units.push_back({{config.centerX, config.groundLevel}, 0, 1, 0.0f, UNIT_SPEED_NORMAL, NONE});
+    units.push_back({{config.centerX, config.groundLevel}, 0, 0, 0.0f, UNIT_SPEED_NORMAL, NONE});
 
     // registra unidades para o sistema de input
     RegisterUnits(units);
@@ -89,7 +89,7 @@ int main(){
 
                 // garante pelo menos uma unidade ativa
                 if (nodes.size() >= 2 && units.empty()) {
-                    units.push_back({{config.centerX, config.groundLevel}, 0, 1, 0.0f, UNIT_SPEED_NORMAL, NONE});
+                    units.push_back({{config.centerX, config.groundLevel}, 0, 0, 0.0f, UNIT_SPEED_NORMAL, NONE});
                 }
 
                 // atualiza toda simulação (IA + recursos + etc)

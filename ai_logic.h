@@ -19,6 +19,30 @@ inline bool IsPointInPuddleAI(Vector2 p, const Puddle& puddle){
     return (d.x * d.x + d.y * d.y) <= 1.0f;
 }
 
+// verifica se um recurso pode ser coletado em um node específico
+inline bool IsResourceCollectableAtNode(int nodeIdx, ResourceType type, 
+                                        const TreeResources& res, 
+                                        const std::vector<Node>& nodes) 
+{
+    if (type == WATER) {
+        for (auto& p : res.waterPuddles)
+            if (p.amount > 0 && IsPointInPuddleAI(nodes[nodeIdx].position, p))
+                return true;
+    } 
+    else if (type == MINERAL) {
+        for (auto& m : res.minerals)
+            if (m.amount > 0 && IsPointInPuddleAI(nodes[nodeIdx].position, m))
+                return true;
+    } 
+    else if (type == LIGHT) {
+        for (auto& lr : leafRegistry)
+            if (lr.nodeIndex == nodeIdx && lr.active && lr.readyTimer <= 0)
+                return true;
+    }
+
+    return false;
+}
+
 // decide qual o próximo nó que a unidade deve ir
 inline int DecideNextNode(Unit& unit, const std::vector<Node>& nodes, const std::vector<Connection>& connections, const TreeResources& res){
     // acha o tronco (ponto base)
@@ -84,33 +108,6 @@ inline int DecideNextNode(Unit& unit, const std::vector<Node>& nodes, const std:
         if (leafAvailable || puddleAvailable || mineralAvailable){
             NodeType goal = ROOT;
             ResourceType goalRes = NONE;
-            
-            if (gCurrentFocus == FOCUS_WATER){
-                goal = puddleAvailable ? ROOT : TRUNK;
-                goalRes = WATER;
-            } else if (gCurrentFocus == FOCUS_MINERAL){
-                goal = mineralAvailable ? ROOT : TRUNK;
-                goalRes = MINERAL;
-            } else if (gCurrentFocus == FOCUS_LIGHT){
-                goal = leafAvailable ? LEAF : TRUNK;
-                goalRes = LIGHT;
-            } else {
-                if (gSugarOrders > 0 && puddleAvailable){
-                    goal = ROOT; goalRes = WATER;
-                } else if (res.mineralLevel < res.waterLevel &&
-                           res.mineralLevel < res.lightLevel &&
-                           mineralAvailable){
-                    goal = ROOT; goalRes = MINERAL;
-                } else if (res.waterLevel < res.lightLevel && puddleAvailable){
-                    goal = ROOT; goalRes = WATER;
-                } else if (leafAvailable){
-                    goal = LEAF; goalRes = LIGHT;
-                } else {
-                    goal = ROOT; goalRes = WATER;
-                }
-            }
-
-            unit.intent = goalRes;
 
             // -----------------------------
             // SCORING DINÂMICO COM URGÊNCIA E LIMITE DE RECURSO
@@ -118,6 +115,7 @@ inline int DecideNextNode(Unit& unit, const std::vector<Node>& nodes, const std:
             struct Candidate {
                 int nodeIdx;
                 float score;
+                ResourceType type;
             };
 
             const float MAX_WATER = 100.0f;
@@ -127,57 +125,45 @@ inline int DecideNextNode(Unit& unit, const std::vector<Node>& nodes, const std:
             std::vector<Candidate> candidates;
             Vector2 unitPos = nodes[unit.startNodeIndex].position;
 
-            for (int i = 0; i < (int)nodes.size(); i++){
-                if (nodes[i].type != goal) continue;
+            // verifica todos os nodes e todos os recursos possíveis
+            std::vector<ResourceType> resourceTypes = {WATER, MINERAL, LIGHT};
 
-                bool prod = false;
+            for (auto resType : resourceTypes){
+                NodeType t = (resType == LIGHT) ? LEAF : ROOT;
 
-                if (goal == LEAF){
-                    for (auto& lr : leafRegistry)
-                        if (lr.nodeIndex == i && lr.active && lr.readyTimer <= 0)
-                            prod = true;
-                } else if (goalRes == WATER){
-                    for (auto& p : res.waterPuddles)
-                        if (IsPointInPuddleAI(nodes[i].position, p))
-                            prod = true;
-                } else if (goalRes == MINERAL){
-                    for (auto& m : res.minerals)
-                        if (IsPointInPuddleAI(nodes[i].position, m))
-                            prod = true;
+                for (int i = 0; i < (int)nodes.size(); i++){
+                    if (nodes[i].type != t) continue;
+
+                    if (!IsResourceCollectableAtNode(i, resType, res, nodes))
+                        continue;
+
+                    float dist = Vector2Distance(unitPos, nodes[i].position);
+
+                    float fillRatio = 0.0f;
+                    if (resType == WATER) fillRatio = res.waterLevel / MAX_WATER;
+                    else if (resType == MINERAL) fillRatio = res.mineralLevel / MAX_MINERAL;
+                    else if (resType == LIGHT) fillRatio = res.lightLevel / MAX_LIGHT;
+
+                    float urgency = (fillRatio < 0.8f) ? (1.0f - fillRatio) : 0.0f;
+                    if (urgency <= 0.0f) continue;
+
+                    float score = urgency / (dist + 1.0f);
+                    candidates.push_back({i, score, resType});
                 }
-
-                if (!prod) continue;
-
-                float dist = Vector2Distance(unitPos, nodes[i].position);
-
-                // calcula urgência considerando nível atual e limite máximo
-                float urgency = 0.0f;
-
-                if (goalRes == WATER){
-                    float fillRatio = res.waterLevel / MAX_WATER;
-                    urgency = (fillRatio < 0.8f) ? (1.0f - fillRatio) : 0.0f;
-                } else if (goalRes == MINERAL){
-                    float fillRatio = res.mineralLevel / MAX_MINERAL;
-                    urgency = (fillRatio < 0.8f) ? (1.0f - fillRatio) : 0.0f;
-                } else if (goalRes == LIGHT){
-                    float fillRatio = res.lightLevel / MAX_LIGHT;
-                    urgency = (fillRatio < 0.8f) ? (1.0f - fillRatio) : 0.0f;
-                }
-
-                if (urgency <= 0.0f) continue; // ignora nós se recurso quase cheio
-
-                float score = urgency / (dist + 1.0f);
-
-                candidates.push_back({i, score});
             }
 
+            // escolhe o node com maior score, independentemente do recurso
             if (!candidates.empty()){
                 auto best = std::max_element(candidates.begin(), candidates.end(),
                                              [](const Candidate& a, const Candidate& b){ return a.score < b.score; });
                 target = best->nodeIdx;
+                goalRes = best->type;
             } else {
                 target = trunkIdx;
+                goalRes = NONE;
             }
+
+            unit.intent = goalRes;
         }
     }
 

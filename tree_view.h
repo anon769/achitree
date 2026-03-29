@@ -96,7 +96,7 @@ inline void DrawEcosystem(const std::vector<Unit>& units, const std::vector<Node
                 for(auto& c : connections) if(c.from == i || c.to == i) { connected = true; break; }
                 if(!connected) continue;
             }
-            if (mouseBelow && (nodes[i].type != ROOT && nodes[i].type != TRUNK)) continue;
+            if (mouseBelow && nodes[i].type != ROOT) continue;
             if (!mouseBelow && nodes[i].type == ROOT) continue;
             Vector2 nPos = Vector2Add(nodes[i].position, GetWindOffset(nodes[i].position, groundLevel, nodes[i].type, nodes));
             float d = Vector2Distance(mouseWorld, nPos);

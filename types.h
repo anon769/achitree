@@ -84,7 +84,7 @@ inline std::vector<Connection> virtualConnections;  // conexões virtuais
 inline std::vector<FallingBranch> fallingBranches;  // galhos caindo
 inline int gSugarCount = 0;                          // contador de açúcar
 inline int gSugarOrders = 0;                         // ordens de açúcar
-inline float gBudCount = 1.0f;                       // contador de brotos
+inline float gBudCount = 1000.0f;                       // contador de brotos (!TODO apenas para teste)
 inline CollectionFocus gCurrentFocus = FOCUS_NONE;  // foco de coleta atual
 
 // inicializa o registro de folhas a partir dos nós

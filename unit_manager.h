@@ -18,7 +18,7 @@ void RemoveUnit(std::vector<Unit>& units){
 
 // processa entradas do usuário relacionadas às unidades e recursos
 void HandleUnitInput(std::vector<Unit>& units, Vector2 spawnPos, TreeResources& res){
-    // adiciona ou remove unidades com UP/DOWN (!TODO REMOVER QUANDO TESTE ACABAR)
+    // adiciona ou remove unidades com UP/DOWN (!TODO apenas para teste)
     if (IsKeyPressed(KEY_UP)) AddUnit(units, spawnPos);
     if (IsKeyPressed(KEY_DOWN)) RemoveUnit(units);
 

@@ -144,7 +144,15 @@ inline int DecideNextNode(Unit& unit, const std::vector<Node>& nodes, const std:
                     else if (resType == MINERAL) fillRatio = res.mineralLevel / MAX_MINERAL;
                     else if (resType == LIGHT) fillRatio = res.lightLevel / MAX_LIGHT;
 
-                    float urgency = (fillRatio < 0.8f) ? (1.0f - fillRatio) : 0.0f;
+                    float urgency = 0.0f;
+
+                    // PRIORIDADE ABSOLUTA PARA SUGAR
+                    if (gSugarOrders > 0 && resType == WATER){
+                        urgency = 2.0f; // maior que qualquer outro valor normal
+                    } else {
+                        urgency = (fillRatio < 0.8f) ? (1.0f - fillRatio) : 0.0f;
+                    }
+
                     if (urgency <= 0.0f) continue;
 
                     float score = urgency / (dist + 1.0f);

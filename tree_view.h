@@ -50,7 +50,7 @@ inline void DrawEcosystem(const std::vector<Unit>& units, const std::vector<Node
         float rainAngle = gWeather.windStrength * 10.0f;
         for (int i = 0; i < 100; i++){
             int rx = GetRandomValue(centerX - MAP_LIMIT, centerX + MAP_LIMIT);
-            int ry = GetRandomValue(groundLevel - MAP_LIMIT, groundLevel);
+            int ry = GetRandomValue(groundLevel - MAP_LIMIT, groundLevel - 10);
             DrawLine(rx, ry, rx - rainAngle, ry + 10, {100, 150, 255, 150});
         }
     }

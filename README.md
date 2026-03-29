@@ -25,3 +25,13 @@
 ### 🔄 System
 - **R** → Restart game  
 - **Esc / Alt + F4** → Close game  
+
+## ❗ Current Issues (order of priority: A > B > C)
+
+### 🔴 Priority A
+- Tronco pode se conectar na terra.
+- Quando há 2 recursos com quantidade exatamente igual, um deles pode ser priorizado mesmo não sendo possível coletá-lo, enquanto o outro pode ser coletado.
+
+### 🟠 Priority B
+
+### 🟢 Priority C

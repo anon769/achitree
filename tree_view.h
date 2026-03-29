@@ -91,33 +91,34 @@ inline void DrawEcosystem(const std::vector<Unit>& units, const std::vector<Node
         float minDist = 250.0f;
 
         for (int i = 0; i < (int)nodes.size(); i++){
-            if (nodes[i].type != TRUNK && nodes[i].type != ROOT) {
+            if (nodes[i].type != TRUNK && nodes[i].type != ROOT){
                 bool connected = false;
                 for(auto& c : connections) if(c.from == i || c.to == i) { connected = true; break; }
                 if(!connected) continue;
             }
             if (mouseBelow && (nodes[i].type != ROOT && nodes[i].type != TRUNK)) continue;
             if (!mouseBelow && nodes[i].type == ROOT) continue;
-            Vector2 nodeVisualPos = Vector2Add(nodes[i].position, GetWindOffset(nodes[i].position, groundLevel, nodes[i].type, nodes));
-            float d = Vector2Distance(mouseWorld, nodeVisualPos);
+            Vector2 nPos = Vector2Add(nodes[i].position, GetWindOffset(nodes[i].position, groundLevel, nodes[i].type, nodes));
+            float d = Vector2Distance(mouseWorld, nPos);
             if (d < minDist) { minDist = d; closestIdx = i; }
         }
 
         if (closestIdx != -1){
-            float maxAllowedDist = (mouseBelow) ? 150.0f : 45.0f;
-            Vector2 targetNodePos = Vector2Add(nodes[closestIdx].position, GetWindOffset(nodes[closestIdx].position, groundLevel, nodes[closestIdx].type, nodes));
-            if (Vector2Distance(mouseWorld, targetNodePos) <= maxAllowedDist){
-                float budCost = (holdingT && !mouseBelow) ? 2.0f : 1.0f;
-                if (mouseBelow){
-                    for (const auto& tp : gWormTrails){
-                        if (Vector2Distance(mouseWorld, tp.position) < 15.0f){
-                            budCost = 0.5f;
-                            break;
-                        }
+            // --- NOVA CONDIÇÃO ---
+            // Se o mouse está abaixo do solo E o nó mais próximo é um TRUNK, não desenha a linha.
+            if (mouseBelow && nodes[closestIdx].type == TRUNK){
+                // Não desenha nada, apenas sai do bloco.
+                // (Você pode querer opcionalmente desenhar uma linha vermelha ou algo indicando proibição)
+            } else {
+                float maxAllowedDist = (mouseBelow) ? 150.0f : 45.0f;
+                Vector2 targetPos = Vector2Add(nodes[closestIdx].position, GetWindOffset(nodes[closestIdx].position, groundLevel, nodes[closestIdx].type, nodes));
+                if (Vector2Distance(mouseWorld, targetPos) <= maxAllowedDist){
+                    float cost = (holdingT && !mouseBelow) ? 2.0f : 1.0f;
+                    if (mouseBelow){
+                        for (const auto& tp : gWormTrails) if (Vector2Distance(mouseWorld, tp.position) < 15.0f) { cost = 0.5f; break; }
                     }
+                    DrawLineEx(targetPos, mouseWorld, 2.0f, (gBudCount >= cost) ? WHITE : RED);
                 }
-                Color lineColor = (gBudCount >= budCost) ? WHITE : RED;
-                DrawLineEx(targetNodePos, mouseWorld, 2.0f, lineColor);
             }
         }
     }

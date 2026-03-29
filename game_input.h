@@ -138,8 +138,10 @@ inline void HandleConstruction(
 
                 // regras de conexão por tipo
                 if (typeToBuild == ROOT){
-                    if (nodes[i].type == ROOT || nodes[i].type == TRUNK) canConnect = true;
+                    // ROOT só pode conectar a outro ROOT ou ao tronco inicial (índice 0)
+                    if (nodes[i].type == ROOT || (nodes[i].type == TRUNK && i == 0)) canConnect = true;
                 } else {
+                    // TRUNK e LEAF não podem conectar a ROOT
                     if (nodes[i].type != ROOT) canConnect = true;
                 }
 

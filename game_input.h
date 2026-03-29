@@ -84,6 +84,13 @@ inline void HandleConstruction(
         introTimer = 0.0f;
         introFinished = false;
 
+        // --------- RESETA A CÂMERA ----------
+        camera.offset = { (float)GetScreenWidth()/2, (float)GetScreenHeight()/2 };
+        camera.target = { centerX, groundLevel };
+        camera.rotation = 0.0f;
+        camera.zoom = 3.0f; // zoom inicial da intro
+        // ------------------------------------
+
         return;
     }
 

@@ -23,11 +23,12 @@ inline void RegisterUnits(std::vector<Unit>& units){
 inline void HandleCamera(Camera2D& camera, float centerX, float groundLevel){
     float wheel = GetMouseWheelMove();
 
-    // zoom com foco no mouse
+    // zoom baseado no centro da tela
     if (wheel != 0){
-        Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), camera);
-        camera.offset = GetMousePosition();
-        camera.target = mouseWorldPos;
+        // define offset fixo no centro da tela
+        camera.offset = { (float)GetScreenWidth()/2, (float)GetScreenHeight()/2 };
+
+        // aplica zoom relativo ao centro
         camera.zoom = Clamp(camera.zoom + wheel * 0.12f, 0.4f, 3.0f);
     }
 

@@ -29,7 +29,6 @@
 ## ❗ Current Issues
 
 ### 🔴 Priority A
-- Tronco pode se conectar na terra.
 
 ### 🟠 Priority B
 

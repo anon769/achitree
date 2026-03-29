@@ -6,7 +6,7 @@
 #include "types.h"
 #include <vector>
 
-// configuração básica do mundo
+// configuração mundo
 struct WorldConfig {
     float sw;          // largura da tela/mundo
     float sh;          // altura da tela/mundo

@@ -13,7 +13,6 @@
 
 // atualiza toda a simulação do ecossistema
 inline void UpdateEcosystem(std::vector<Unit>& units, std::vector<Node>& nodes, std::vector<Connection>& connections, TreeResources& res, int sw, int sh, Camera2D camera){
-
     float dt = GetFrameTime();
 
     // tempo total de jogo (usado pra dificuldade)

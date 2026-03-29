@@ -9,7 +9,6 @@
 
 // atualiza todas as unidades (movimento + lógica + coleta/entrega)
 inline void UpdateUnits(std::vector<Unit>& units, std::vector<Node>& nodes, const std::vector<Connection>& connections, TreeResources& res, float ground, float dt){
-
     // input manual (spawn, controle, etc)
     HandleUnitInput(units, nodes[0].position, res);
 

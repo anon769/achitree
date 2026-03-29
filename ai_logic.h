@@ -6,7 +6,7 @@
 #include <queue>
 #include <map>
 
-// ve se o nó ta dentro da poça de agua (ou mineral, já que usa mesma lógica)
+// vê se o nó está dentro da poça de água (ou mineral, já que usa mesma lógica)
 inline bool IsPointInPuddleAI(Vector2 p, const Puddle& puddle){
     if (puddle.amount <= 0) return false;
 
@@ -18,7 +18,7 @@ inline bool IsPointInPuddleAI(Vector2 p, const Puddle& puddle){
     return (d.x * d.x + d.y * d.y) <= 1.0f;
 }
 
-// decide qual o proximo nó que a unidade deve ir
+// decide qual o próximo nó que a unidade deve ir
 inline int DecideNextNode(Unit& unit, const std::vector<Node>& nodes, const std::vector<Connection>& connections, const TreeResources& res){
     // acha o tronco (ponto base)
     int trunkIdx = 0;

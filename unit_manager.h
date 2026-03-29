@@ -26,10 +26,10 @@ void HandleUnitInput(std::vector<Unit>& units, Vector2 spawnPos, TreeResources& 
     if (IsKeyPressed(KEY_S)){
         if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)){
             if (gSugarOrders > 0){
-                gSugarOrders--;  // Shift + S
+                gSugarOrders--; // Shift + S
             }
         } else {
-            gSugarOrders++;  // S normal
+            gSugarOrders++; // S normal
         }
     }
 

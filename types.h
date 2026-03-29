@@ -4,7 +4,7 @@
 #include "raylib.h"
 #include <vector>
 
-// tipos de nó na árvore
+// tipos de nó da árvore
 enum NodeType { TRUNK, BRANCH, ROOT, LEAF };
 
 // tipos de recurso que unidades podem carregar
@@ -90,7 +90,7 @@ inline CollectionFocus gCurrentFocus = FOCUS_NONE;  // foco de coleta atual
 // inicializa o registro de folhas a partir dos nós
 inline void InitLeafRegistry(const std::vector<Node>& nodes){
     leafRegistry.clear();
-    for(int i = 0; i < (int)nodes.size(); i++) {
+    for(int i = 0; i < (int)nodes.size(); i++){
         if(nodes[i].type == LEAF) leafRegistry.push_back({i, true, 0.0f});
     }
 }

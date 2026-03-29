@@ -7,7 +7,7 @@
 #include "types.h"
 #include "raymath.h"
 
-// sistema simples de vento (estado global)
+// sistema de vento (estado global)
 struct WeatherSystem {
     float windTime;        // tempo acumulado (usado na oscilação do vento)
     float windStrength;    // força atual do vento

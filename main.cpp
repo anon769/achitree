@@ -30,7 +30,7 @@ int main(){
     SetupNewGame(treeRes, nodes, connections, config);
     InitLeafRegistry(nodes);
 
-    // cria unidade inicial
+    // cria a unidade inicial
     units.push_back({{config.centerX, config.groundLevel}, 0, 1, 0.0f, UNIT_SPEED_NORMAL, NONE});
 
     // registra unidades para o sistema de input

@@ -21,7 +21,7 @@ inline bool IsPointInPuddle(Vector2 p, const Puddle& puddle){
 inline void HandleWeatherCycle(TreeResources& res, float dt, float centerX, float ground){
     // decrementa timer e alterna estado chuva/sol
     if ((res.rainTimer -= dt) <= 0){
-        if (!res.isRaining) {
+        if (!res.isRaining){
             res.isRaining = true;
             res.rainTimer = (float)GetRandomValue(3, 6); // duração aleatória da chuva
         } else {
@@ -41,7 +41,7 @@ inline void HandleWeatherCycle(TreeResources& res, float dt, float centerX, floa
         // evita poças muito próximas umas das outras
         bool tooClose = false;
         for (const auto& p : res.waterPuddles){
-            if (Vector2Distance({spawnX, spawnY}, p.position) < 200.0f) {
+            if (Vector2Distance({spawnX, spawnY}, p.position) < 200.0f){
                 tooClose = true;
                 break;
             }

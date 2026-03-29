@@ -5,7 +5,6 @@
 
 // atualiza níveis básicos da árvore (consumo passivo)
 inline void UpdateTreeHealth(TreeResources& res, float deltaTime){
-
     // consumo contínuo de água e luz
     res.waterLevel = fmaxf(res.waterLevel - res.consumptionRate * deltaTime, 0.0f);
     res.lightLevel = fmaxf(res.lightLevel - res.consumptionRate * deltaTime, 0.0f);

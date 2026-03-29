@@ -26,7 +26,7 @@
 - **R** → Restart game  
 - **Esc / Alt + F4** → Close game  
 
-## ❗ Current Issues (order of priority: A > B > C)
+## ❗ Current Issues
 
 ### 🔴 Priority A
 - Tronco pode se conectar na terra.

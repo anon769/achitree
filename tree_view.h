@@ -171,9 +171,9 @@ inline void DrawEcosystem(const std::vector<Unit>& units, const std::vector<Node
 // desenha interface de usuário (UI) com barras e informações
 inline void DrawUI(const TreeResources& res, int sw, int sh, const std::vector<Node>& nodes, float groundLevel, Camera2D camera) {
     auto Bar = [&](int y, float val, Color c, float previewCost){
-        DrawRectangle(20, y, 180, 12, {40, 40, 40, 255}); // fundo
+        DrawRectangle(10, y, 180, 12, {40, 40, 40, 255}); // fundo
         int currentW = (int)(180 * (fminf(val, res.maxLevel) / 100.0f));
-        DrawRectangle(20, y, currentW, 12, c); // barra
+        DrawRectangle(10, y, currentW, 12, c); // barra
     };
 
     Vector2 mWorld = GetScreenToWorld2D(GetMousePosition(), camera);
@@ -208,14 +208,14 @@ inline void DrawUI(const TreeResources& res, int sw, int sh, const std::vector<N
     }
 
     // desenha barras de recursos
-    Bar(20, res.lightLevel, YELLOW, previewLight);
-    Bar(40, res.waterLevel, BLUE, previewWater);
-    Bar(60, res.mineralLevel, PURPLE, 0);
-    Bar(80, res.treeHealth, LIME, 0);
+    Bar(10, res.lightLevel, YELLOW, previewLight);
+    Bar(30, res.waterLevel, BLUE, previewWater);
+    Bar(50, res.mineralLevel, PURPLE, 0);
+    Bar(70, res.treeHealth, LIME, 0);
 
     // desenha texto de recursos e foco
-    DrawText(TextFormat("SUGAR: %d", gSugarCount), sw - 120, 10, 20, BROWN);
-    DrawText(TextFormat("BUDS: %.1f", gBudCount), sw - 120, 25, 20, GREEN);
+    DrawText(TextFormat("SUGAR: %d", gSugarCount), sw - 140, 10, 20, BROWN);
+    DrawText(TextFormat("BUDS: %.1f", gBudCount), sw - 140, 30, 20, GREEN);
     
     const char* focusStr = "DEFAULT";
     Color focusClr = WHITE;
@@ -225,10 +225,10 @@ inline void DrawUI(const TreeResources& res, int sw, int sh, const std::vector<N
     
     const char* focusFull = TextFormat("FOCUS: %s", focusStr);
     int focusWidth = MeasureText(focusFull, 20);
-    DrawText(focusFull, (sw / 2) - (focusWidth / 2), 20, 20, focusClr);
+    DrawText(focusFull, (sw / 2) - (focusWidth / 2), 10, 20, focusClr);
 
     // desenha ordens de açúcar
-    DrawText(TextFormat("SUGAR ORDERS: %d", gSugarOrders), sw - 330, 10, 20, ORANGE);
+    DrawText(TextFormat("SUGAR ORDERS: %d", gSugarOrders), sw - 400, 10, 20, ORANGE);
 }
 
 #endif

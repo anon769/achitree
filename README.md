@@ -33,3 +33,13 @@
 ### 🟠 Priority B
 
 ### 🟢 Priority C
+
+## ❗ Ideas
+
+### 🔴 Priority A
+
+### 🟠 Priority B
+
+### 🟢 Priority C
+- inimigos (ferrugem nas folhas (secreções/fungicidas naturais combatem), nematóides nas raízes (micorrizas combatem), pulgões sugam seiva (toxinas combatem), formigas cortadeiras cortam folhas, lagartas/besouros comem folhas)
+- condições ambientais (seca, neve)

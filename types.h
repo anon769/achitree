@@ -78,6 +78,13 @@ struct FallingBranch {
     float thickness;       // espessura do galho
 };
 
+// estado atual do jogo
+enum class GameState {
+    STATE_MENU, // menu
+    STATE_PLAYING, // jogando
+    STATE_EXIT // saiu
+};
+
 // registries globais
 inline std::vector<LeafStatus> leafRegistry;         // controle de folhas
 inline std::vector<Connection> virtualConnections;  // conexões virtuais
@@ -86,6 +93,7 @@ inline int gSugarCount = 0;                          // contador de açúcar
 inline int gSugarOrders = 0;                         // ordens de açúcar
 inline float gBudCount = 1000.0f;                       // contador de brotos (!TODO apenas para teste)
 inline CollectionFocus gCurrentFocus = FOCUS_NONE;  // foco de coleta atual
+inline GameState gCurrentState = GameState::STATE_MENU; // estado do jogo
 
 // inicializa o registro de folhas a partir dos nós
 inline void InitLeafRegistry(const std::vector<Node>& nodes){

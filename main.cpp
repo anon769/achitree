@@ -13,6 +13,7 @@
 int main(){
     // inicializa janela em fullscreen
     InitWindow(0, 0, "Eco-Logistics: Survival");
+    SetExitKey(KEY_NULL); // não fechar o jogo com teclado nativo (ESC livre)
     if (!IsWindowFullscreen()) ToggleFullscreen();
     
     int sw = GetScreenWidth();
@@ -44,7 +45,6 @@ int main(){
 
     // estado do jogo
     bool collapsed = false;
-    bool paused = false;
 
     // câmera inicial (zoom alto no começo)
     Camera2D camera = {
@@ -59,103 +59,118 @@ int main(){
     // loop principal
     while (!WindowShouldClose()){
 
-        // estado menu
-        if(gCurrentState == GameState::STATE_MENU){
-            ShowMenu();
-        }
-
-        // estado jogando
-        else if(gCurrentState == GameState::STATE_PLAYING){
-
-            // pausa com espaço
-            if (IsKeyPressed(KEY_SPACE)) paused = !paused;
+        if (gCurrentState == GameState::STATE_PLAYING) {
+            
+            // abrir menu de pausa com 'esc'
+            if (IsKeyPressed(KEY_ESCAPE)) {
+                gCurrentState = GameState::STATE_PAUSE;
+            }
 
             // input de construção/reset
             HandleConstruction(nodes, connections, treeRes, camera,
-                            config.groundLevel, config.centerX,
-                            introTimer, introFinished);
+                               config.groundLevel, config.centerX,
+                               introTimer, introFinished);
 
             // atualiza intro (zoom + tempo)
-            if (!introFinished){
+            if (!introFinished) {
                 introTimer += GetFrameTime();
 
                 // zoom suavemente de perto → normal
                 camera.zoom = Lerp(3.0f, 1.0f, fminf(introTimer / introDuration, 1.0f));
 
-                if (introTimer >= introDuration){
+                if (introTimer >= introDuration) {
                     introFinished = true;
                     camera.zoom = 1.0f;
                 }
             }
 
-            // gameplay normal
-            if (!collapsed && introFinished){
+            // gameplay normal (só roda se não estiver colapsada e finalizou a intro)
+            if (!collapsed && introFinished) {
 
                 // controle da câmera
                 HandleCamera(camera, config.centerX, config.groundLevel);
 
-                if (!paused){
-
-                    // garante pelo menos uma unidade ativa
-                    if (nodes.size() >= 2 && units.empty()) {
-                        units.push_back({{config.centerX, config.groundLevel}, 0, 0, 0.0f, UNIT_SPEED_NORMAL, NONE});
-                    }
-
-                    // atualiza toda simulação (IA + recursos + etc)
-                    UpdateEcosystem(units, nodes, connections, treeRes, sw, sh, camera);
+                // garante pelo menos uma unidade ativa
+                if (nodes.size() >= 2 && units.empty()) {
+                    units.push_back({{config.centerX, config.groundLevel}, 0, 0, 0.0f, UNIT_SPEED_NORMAL, NONE});
                 }
 
-                // verifica colapso da árvore
-                if (treeRes.treeHealth <= 0)
-                    collapsed = true;
+                // atualiza toda simulação (IA + recursos + etc)
+                UpdateEcosystem(units, nodes, connections, treeRes, sw, sh, camera);
             }
 
             // evita travar em estado de colapso se recuperar
-            if (!nodes.empty() && treeRes.treeHealth > 0)
+            if (!nodes.empty() && treeRes.treeHealth > 0) {
                 collapsed = false;
+            }
+            // verifica colapso da árvore
+            if (treeRes.treeHealth <= 0) {
+                collapsed = true;
+            }
+        }
+        else if (gCurrentState == GameState::STATE_PAUSE) {
+            // fechar menu de pausa com 'esc' de forma segura
+            if (IsKeyPressed(KEY_ESCAPE)) {
+                gCurrentState = GameState::STATE_PLAYING;
+            }
+        }
+        else if (gCurrentState == GameState::STATE_EXIT) {
+            break; // Sai do loop principal de forma limpa
+        }
 
-            // -----------------------------
-            // RENDER
-            // -----------------------------
-            BeginDrawing();
-                ClearBackground(BLACK);
+        // renderizações
+        BeginDrawing();
+            ClearBackground(BLACK);
 
-                if (!collapsed){
+            // menu principal
+            if (gCurrentState == GameState::STATE_MENU) {
+                ShowMenu();
+            }
 
+            // menu de configurações
+            else if (gCurrentState == GameState::STATE_SETTINGS) {
+                ShowSettings();
+            }
+
+            // menu de pausa
+            else if (gCurrentState == GameState::STATE_PAUSE) {
+                ShowPause();
+            }
+
+            // jogo
+            else if (gCurrentState == GameState::STATE_PLAYING) {
+                
+                if (!collapsed) {
                     BeginMode2D(camera);
-
                         // desenha intro ou jogo normal
-                        if (!introFinished){
+                        if (!introFinished) {
                             DrawIntro(introTimer, introDuration,
-                                    config.centerX, config.groundLevel,
-                                    nodes);
+                                      config.centerX, config.groundLevel,
+                                      nodes);
                         } else {
+                            // desativando pause
                             DrawEcosystem(units, nodes, connections,
-                                        treeRes, config.groundLevel,
-                                        sw, sh, camera, paused);
+                                          treeRes, config.groundLevel,
+                                          sw, sh, camera, false);
                         }
-
                     EndMode2D();
                     
                     // UI só aparece depois da intro
-                    if (introFinished){
+                    if (introFinished) {
                         DrawUI(treeRes, sw, sh, nodes,
-                            config.groundLevel, camera);
+                               config.groundLevel, camera);
                     }
 
-                    // overlays (fade / pause)
-                    DrawGameOverlay(introFinished, introTimer, paused, sw, sh);
+                    // overlays de tela cheia (como o fade da intro)
+                    DrawGameOverlay(introFinished, introTimer, false, sw, sh);
 
                 } else {
                     // tela de game over
                     DrawGameOver(sw, sh);
                 }
-
-            EndDrawing();
-        }
-        else if(gCurrentState == GameState::STATE_EXIT) break;
+            }
+        EndDrawing();
     }
-
     
     // encerra aplicação
     CloseWindow();

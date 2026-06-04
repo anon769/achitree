@@ -81,6 +81,8 @@ struct FallingBranch {
 // estado atual do jogo
 enum class GameState {
     STATE_MENU, // menu
+    STATE_SETTINGS, // configurações
+    STATE_PAUSE, // pause
     STATE_PLAYING, // jogando
     STATE_EXIT // saiu
 };
